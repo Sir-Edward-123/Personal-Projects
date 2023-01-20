@@ -10,35 +10,35 @@ public class InterviewQuestion {
 	// Given (x, y)
 	// Possible Operations: (x + y, y) and (x, x + y)
 	// Return true if (a, b) can turn into (c, d), return false otherwise
-//	public static boolean isitpossible(int a, int b, int c, int d) {
-//		if (a == c && b == d) {
-//			System.out.println("c = " + c + ", d = " + d);
-//			return true;
-//		}
-//		if (c < a || d < b) {
-//			return false;
-//		}
-//		boolean result = isitpossible(a, b, c - d, d) || isitpossible(a, b, c, d - c);
-//		if (result) {
-//			System.out.println("c = " + c + ", d = " + d);
-//		}
-//		return result;
-//	}
-	
 	public static boolean isitpossible(int a, int b, int c, int d) {
 		if (a == c && b == d) {
-			System.out.println("a = " + a + ", b = " + b);
+			System.out.println("c = " + c + ", d = " + d);
 			return true;
 		}
-		if (a > c || b > d) {
+		if (c < a || d < b) {
 			return false;
 		}
-		boolean result = isitpossible(a + b, b, c, d) || isitpossible(a, b + a, c, d);
+		boolean result = isitpossible(a, b, c - d, d) || isitpossible(a, b, c, d - c);
 		if (result) {
-			System.out.println("a = " + a + ", b = " + b);
+			System.out.println("c = " + c + ", d = " + d);
 		}
 		return result;
 	}
+	
+//	public static boolean isitpossible(int a, int b, int c, int d) {
+//		if (a == c && b == d) {
+//			System.out.println("a = " + a + ", b = " + b);
+//			return true;
+//		}
+//		if (a > c || b > d) {
+//			return false;
+//		}
+//		boolean result = isitpossible(a + b, b, c, d) || isitpossible(a, b + a, c, d);
+//		if (result) {
+//			System.out.println("a = " + a + ", b = " + b);
+//		}
+//		return result;
+//	}
 
 	public static void test() {
 		for (int iter = 0; iter < 100; iter++) {
