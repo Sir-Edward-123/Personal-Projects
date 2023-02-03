@@ -18,12 +18,13 @@ import javax.swing.Timer;
 public class BasicKinematics extends JPanel implements ActionListener, MouseListener{
 	private static final long serialVersionUID = 1L;
 	private Timer timer;
-	private int timeStep = 10; // milliseconds
+	private double timeStep = 0.01; // seconds
 	private final int WINDOW_WIDTH = 1000;
 	private final int WINDOW_HEIGHT = 700;
 	private final int BOX_WIDTH = 20;
 	private final int BOX_HEIGHT = 20;
-	private final int PIXEL_TO_METER_RATIO = 20;
+	private final int PIXEL_TO_METER_RATIO = 100;
+	private final double COLLISION_VELOCITY_LOSS_RATIO = 0.4;
 	private boolean boxIsBeingDragged = false;
 	private double xPos = 490;
 	private double yPos = 0; // starts from bottom instead of top
@@ -50,28 +51,41 @@ public class BasicKinematics extends JPanel implements ActionListener, MouseList
 		setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 		this.addMouseListener(this);
 		repaint();
-		timer = new Timer(timeStep, this);
+		timer = new Timer((int)(timeStep * 1000), this);
 		timer.start();
 	}
 	
 	void updateKinematics() {
-		if(xPos <= 0 ) {
-			xVelocity = 0;
+		if(xPos < 0) {
+			xVelocity = -xVelocity * COLLISION_VELOCITY_LOSS_RATIO;
+			yVelocity *= COLLISION_VELOCITY_LOSS_RATIO;
 			xPos = 0;
-		} else if(xPos >= WINDOW_WIDTH){
-			xVelocity = 0;
+		} else if(xPos + BOX_WIDTH > WINDOW_WIDTH){
+			xVelocity = -xVelocity * COLLISION_VELOCITY_LOSS_RATIO;
+			yVelocity *= COLLISION_VELOCITY_LOSS_RATIO;
 			xPos = WINDOW_WIDTH - BOX_WIDTH;
 		} else {
-			xPos += xVelocity * timeStep * 0.001 * PIXEL_TO_METER_RATIO;
+			xPos += xVelocity * timeStep * PIXEL_TO_METER_RATIO;
 		}
 		
-		if(yPos <= 0) {
-			xVelocity = 0;
-			yVelocity = 0;
+		if(yPos < 0) {
+			xVelocity *= COLLISION_VELOCITY_LOSS_RATIO;
+			yVelocity = -yVelocity * COLLISION_VELOCITY_LOSS_RATIO;
 			yPos = 0;
+		} else if(yPos + BOX_WIDTH > WINDOW_HEIGHT) {
+			xVelocity *= COLLISION_VELOCITY_LOSS_RATIO;
+			yVelocity = -yVelocity * COLLISION_VELOCITY_LOSS_RATIO;
+			yPos = WINDOW_HEIGHT - BOX_HEIGHT;
 		} else {
-			yVelocity += Y_ACCELERATION * timeStep * 0.001;
-			yPos += yVelocity * timeStep * 0.001 * PIXEL_TO_METER_RATIO;
+			yVelocity += Y_ACCELERATION * timeStep;
+			yPos += yVelocity * timeStep * PIXEL_TO_METER_RATIO;
+		}
+		
+		if(Math.abs(xVelocity) < (0.5 / PIXEL_TO_METER_RATIO)) {
+			xVelocity = 0;
+		}
+		if(Math.abs(yVelocity) < (0.5 / PIXEL_TO_METER_RATIO)) {
+			yVelocity = 0;
 		}
 	}
 	
@@ -115,8 +129,8 @@ public class BasicKinematics extends JPanel implements ActionListener, MouseList
 				xPos = mouseX - BOX_WIDTH / 2;
 				yPos = calculateYPosRelative(mouseY + BOX_HEIGHT / 2);
 				
-				yVelocity = (yPos - prevYPos) / PIXEL_TO_METER_RATIO * (1000 / timeStep);
-				xVelocity = (xPos - prevXPos) / PIXEL_TO_METER_RATIO * (1000 / timeStep);
+				yVelocity = ((yPos - prevYPos) / PIXEL_TO_METER_RATIO) / timeStep;
+				xVelocity = ((xPos - prevXPos) / PIXEL_TO_METER_RATIO) / timeStep;
 				
 				prevYPos = yPos;
 				prevXPos = xPos;
